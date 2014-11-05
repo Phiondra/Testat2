@@ -1,14 +1,16 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 
 public class Module {
 	public String name;
-	public List<Module> deps = new ArrayList<>();
+	public List<Module> deps = new LinkedList<>();
 	public static Map<String, Module> all = new HashMap<>(); 
-	
+	public static List<Module> withoutDeps = new ArrayList<>();
+	long unresolvedDeps = 0;
 //	public Module(String name, String[] dependencies){
 //		this.name = name;
 //		for(String dep : dependencies){
@@ -25,7 +27,9 @@ public class Module {
 		}
 		for (int i = 1; i < names.length; i++) {
 			Module module = firstOrCreate(names[i]);
-			m.deps.add(module);
+			module.deps.add(m);
+			m.unresolvedDeps++;
+			//m.deps.add(module);
 		}
 		Module.all.put(m.name, m);
 		return m;
