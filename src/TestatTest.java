@@ -1,9 +1,13 @@
 import static org.junit.Assert.*;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.junit.Test;
+
+import util.DepMapper;
 
 
 public class TestatTest {
@@ -12,17 +16,14 @@ public class TestatTest {
 		List<Module> modules = new ArrayList<>();
 		try (CatalogueReader reader = new CatalogueReader(filename)) {
 			String[] names;
-			
 			while ((names = reader.readNextLine()) != null) {
-				
-				Module m = new Module(names[0]);
-				mapper.add(m);
+				Module m = mapper.add(new Module(names[0]));
 				for (int i = 1; i < names.length; i++) {
-					Module module = new Module(names[i]);
-					mapper.addDep(module, m);
-				}
+					mapper.addDep(new Module(names[i]), m);
+				}			
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			fail("Exception");
 		}
 		return modules;
@@ -30,12 +31,23 @@ public class TestatTest {
 
 	@Test
 	public void testPerformance(){
+		DepMapper<Module> mapper = new DepMapper<Module>();
 		Benchmark.measure(() -> {
-			DepMapper<Module> mapper = new DepMapper<Module>();
 			getAllModules("LargeCatalogue.txt", mapper);
-			try {
-				List<List<Module>> allTerms = mapper.getSteps();
-
+			//getAllModules("keysOnly", mapper);
+			return null;
+		});
+		assertEquals(12492, mapper.size());
+				@SuppressWarnings("unchecked")
+				List<List<Module>> allTerms = (List<List<Module>>) Benchmark.measure(() -> {
+					try {
+						return  mapper.getSteps();
+					} catch (Exception e) {
+						e.printStackTrace();
+						fail("exception");
+						return null;
+					}
+				});
 				assertEquals(0, mapper.size());
 	
 				ArrayList<String> termOneModuleNames = new ArrayList<String>();
@@ -49,12 +61,6 @@ public class TestatTest {
 				for(List<Module> term: allTerms){
 					sum += term.size();
 				}
-				assertEquals(1000, sum);
-			} catch (Exception e) {
-				e.printStackTrace();
-				fail("exception");
-			}
-			return null;
-		});
+				assertEquals(12492, sum);
 	}
 }
