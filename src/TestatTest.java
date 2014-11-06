@@ -39,28 +39,68 @@ public class TestatTest {
 		});
 		assertEquals(12492, mapper.size());
 				@SuppressWarnings("unchecked")
-				List<List<Module>> allTerms = (List<List<Module>>) Benchmark.measure(() -> {
+				List<Module> firstTerm = (List<Module>) Benchmark.measure(() -> {
 					try {
-						return  mapper.getSteps();
+						return mapper.next();
 					} catch (Exception e) {
 						e.printStackTrace();
 						fail("exception");
 						return null;
 					}
 				});
-				assertEquals(0, mapper.size());
+				assertEquals(12492 - firstTerm.size(), mapper.size());
 	
 				ArrayList<String> termOneModuleNames = new ArrayList<String>();
-				for(Module m : allTerms.get(0)){
+				for(Module m : firstTerm){
 					termOneModuleNames.add(m.name);
 				}
-				assert(termOneModuleNames.contains("AAA"));
-				assert(termOneModuleNames.contains("AAG"));
+				assertTrue(termOneModuleNames.contains("AAA"));
+				assertTrue(termOneModuleNames.contains("AAG"));
 				assertFalse(termOneModuleNames.contains("AAH"));
-				int sum = 0;
-				for(List<Module> term: allTerms){
-					sum += term.size();
+				
+				
+				List<Module> secondTerm = (List<Module>) Benchmark.measure(() -> {
+					try {
+						return mapper.next();
+					} catch (Exception e) {
+						e.printStackTrace();
+						fail("exception");
+						return null;
+					}
+				});
+				ArrayList<String> termTwoModuleNames = new ArrayList<String>();
+				for(Module m : secondTerm){
+					termTwoModuleNames.add(m.name);
 				}
-				assertEquals(12492, sum);
+				assertTrue(termTwoModuleNames.contains("AAE"));
+				assertTrue(termTwoModuleNames.contains("AAH"));
+				assertFalse(termTwoModuleNames.contains("AAA"));
+				
+				List<Module> lastTerm = (List<Module>) Benchmark.measure(() -> {
+					try {
+						List<Module> term = null;
+						while(mapper.hasNext())
+							term = mapper.next();
+						return term;
+					} catch (Exception e) {
+						e.printStackTrace();
+						fail("exception");
+						return null;
+					}
+				});
+				
+				ArrayList<String> termLastModuleNames = new ArrayList<String>();
+				for(Module m : lastTerm){
+					termLastModuleNames.add(m.name);
+				}
+				assertTrue(termLastModuleNames.contains("FML"));
+				assertTrue(termLastModuleNames.contains("GML"));
+				assertFalse(termLastModuleNames.contains("AAE"));
+				
+//				int sum = 0;
+//				for(List<Module> term: allTerms){
+//					sum += term.size();
+//				}
+//				assertEquals(12492, sum);
 	}
 }
