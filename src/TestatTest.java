@@ -1,12 +1,7 @@
 import static org.junit.Assert.*;
-
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-
 import org.junit.Test;
-
 import util.DepMapper;
 
 
@@ -31,13 +26,13 @@ public class TestatTest {
 
 	@Test
 	public void testPerformance(){
+		int NUM_UNIQUE_ELEMENTS_IN_CATALOGUE = 12492;
 		DepMapper<Module> mapper = new DepMapper<Module>();
 		Benchmark.measure(() -> {
 			getAllModules("LargeCatalogue.txt", mapper);
-			//getAllModules("keysOnly", mapper);
 			return null;
 		});
-		assertEquals(12492, mapper.size());
+		assertEquals(NUM_UNIQUE_ELEMENTS_IN_CATALOGUE, mapper.size());
 				@SuppressWarnings("unchecked")
 				List<Module> firstTerm = (List<Module>) Benchmark.measure(() -> {
 					try {
@@ -48,7 +43,7 @@ public class TestatTest {
 						return null;
 					}
 				});
-				assertEquals(12492 - firstTerm.size(), mapper.size());
+				assertEquals(NUM_UNIQUE_ELEMENTS_IN_CATALOGUE - firstTerm.size(), mapper.size());
 	
 				ArrayList<String> termOneModuleNames = new ArrayList<String>();
 				for(Module m : firstTerm){
@@ -59,6 +54,7 @@ public class TestatTest {
 				assertFalse(termOneModuleNames.contains("AAH"));
 				
 				
+				@SuppressWarnings("unchecked")
 				List<Module> secondTerm = (List<Module>) Benchmark.measure(() -> {
 					try {
 						return mapper.next();
@@ -75,7 +71,8 @@ public class TestatTest {
 				assertTrue(termTwoModuleNames.contains("AAE"));
 				assertTrue(termTwoModuleNames.contains("AAH"));
 				assertFalse(termTwoModuleNames.contains("AAA"));
-				
+				assertEquals(NUM_UNIQUE_ELEMENTS_IN_CATALOGUE - firstTerm.size() - secondTerm.size(), mapper.size());
+				@SuppressWarnings("unchecked")
 				List<Module> lastTerm = (List<Module>) Benchmark.measure(() -> {
 					try {
 						List<Module> term = null;
@@ -97,10 +94,6 @@ public class TestatTest {
 				assertTrue(termLastModuleNames.contains("GML"));
 				assertFalse(termLastModuleNames.contains("AAE"));
 				
-//				int sum = 0;
-//				for(List<Module> term: allTerms){
-//					sum += term.size();
-//				}
-//				assertEquals(12492, sum);
+				assertEquals(0, mapper.size());
 	}
 }

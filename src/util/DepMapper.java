@@ -62,6 +62,7 @@ public class DepMapper<T extends Dependency> implements Iterator<List<T>>{
 		return all.size() > 0;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> next() throws NoSuchElementException {
 		if(withoutDeps.size() == 0){
