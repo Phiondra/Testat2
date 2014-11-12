@@ -13,7 +13,9 @@ import java.util.NoSuchElementException;
 // For an implementation that doesn't require extending util.Dependency see util.DynDepMapper
 public class DepMapper<T extends Dependency> implements Iterator<List<T>>{
 
-	private Map<String, T> all = new HashMap<>();
+	// HashMap is used to get as fast as possible the already created object with its dependencies
+	// ArrayList is used because clearing an  ArrayList performs better than clearing a LinkedList
+	private Map<String, T> all = new HashMap<>();  
 	private List<T> withoutDeps = new ArrayList<>();
 	
 	public int size(){
@@ -72,18 +74,17 @@ public class DepMapper<T extends Dependency> implements Iterator<List<T>>{
 		if(withoutDeps.size() == 0){
 			throw new NoSuchElementException("No Items without dependencies added");
 		}
+		//ArrayList is used because the final size is known at creation 
 		List<T> termMods = new ArrayList<>(withoutDeps);
-		for(T d : withoutDeps){
-			all.remove(d.getKey());
-		}
+		withoutDeps.stream().forEach(d -> all.remove(d.getKey()));
 		withoutDeps.clear();
-		for(T dep : termMods){
-			for(Dependency subD: dep.deps){
+		termMods.stream().forEach(dep -> {
+			dep.deps.stream().forEach(subD ->{
 				if((--subD.unresolvedDeps) == 0){
 					withoutDeps.add((T) subD);
 				}
-			}
-		}
+			});
+		});
 		return termMods;
 	}
 		
