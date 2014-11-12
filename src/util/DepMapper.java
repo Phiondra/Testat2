@@ -20,6 +20,10 @@ public class DepMapper<T extends Dependency> implements Iterator<List<T>>{
 		return all.size();
 	}
 	
+	public boolean contains(String key){
+		return all.containsKey(key);
+	}
+	
 	public T add(T item){
 		T search = all.get(item.getKey());
 		if(search == null){
@@ -68,9 +72,8 @@ public class DepMapper<T extends Dependency> implements Iterator<List<T>>{
 		if(withoutDeps.size() == 0){
 			throw new NoSuchElementException("No Items without dependencies added");
 		}
-		List<T> termMods = new ArrayList<>();
+		List<T> termMods = new ArrayList<>(withoutDeps);
 		for(T d : withoutDeps){
-			termMods.add(d);
 			all.remove(d.getKey());
 		}
 		withoutDeps.clear();
